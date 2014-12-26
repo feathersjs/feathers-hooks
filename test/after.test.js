@@ -77,7 +77,7 @@ describe('.after hooks', function() {
     });
   });
 
-  it('adds .after() and chains multiple calls', function(done) {
+  it('adds .after() and chains multiple hooks for the same method', function(done) {
     var dummyService = {
       create: function(data, params, callback) {
         callback(null, data);
@@ -100,6 +100,40 @@ describe('.after hooks', function() {
 
         next();
       }
+    });
+
+    service.create({ my: 'data' }, {}, function(error, data) {
+      assert.deepEqual({
+        my: 'data',
+        some: 'thing',
+        other: 'stuff'
+      }, data, 'Got modified data');
+      done();
+    });
+  });
+
+  it('chains multiple after hooks using array syntax', function(done) {
+    var dummyService = {
+      create: function(data, params, callback) {
+        callback(null, data);
+      }
+    };
+
+    var app = feathers().configure(hooks()).use('/dummy', dummyService);
+    var service = app.lookup('dummy');
+
+    service.after({
+      create: [
+        function(hook, next) {
+          hook.result.some = 'thing';
+          next();
+        },
+        function(hook, next) {
+          hook.result.other = 'stuff';
+
+          next();
+        }
+      ]
     });
 
     service.create({ my: 'data' }, {}, function(error, data) {
