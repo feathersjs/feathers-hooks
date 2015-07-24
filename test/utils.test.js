@@ -65,6 +65,49 @@ describe('hook utilities', function() {
       type: 'test',
       callback: _.noop
     });
+
+    // find in collection
+    assert.deepEqual(hookMaker('findInCollection')(3, 'tasks', { some: 'thing' }, _.noop), {
+      id: 3,
+      collection: 'tasks',
+      params: { some: 'thing' },
+      method: 'findInCollection',
+      type: 'test',
+      callback: _.noop
+    });
+
+    // get in collection
+    assert.deepEqual(hookMaker('getInCollection')(4, 'tasks', 123, { some: 'thing' }, _.noop), {
+      id: 4,
+      collection: 'tasks',
+      documentId: 123,
+      params: { some: 'thing' },
+      method: 'getInCollection',
+      type: 'test',
+      callback: _.noop
+    });
+
+    // remove from collection
+    assert.deepEqual(hookMaker('removeFromCollection')(4, 'tasks', 123, { some: 'thing' }, _.noop), {
+      id: 4,
+      collection: 'tasks',
+      documentId: 123,
+      params: { some: 'thing' },
+      method: 'removeFromCollection',
+      type: 'test',
+      callback: _.noop
+    });
+
+    // add to collection
+    assert.deepEqual(hookMaker('addToCollection')(3, 'tasks', { my: 'data' }, { some: 'thing' }, _.noop), {
+      id: 3,
+      collection: 'tasks',
+      data: { my: 'data' },
+      params: { some: 'thing' },
+      method: 'addToCollection',
+      type: 'test',
+      callback: _.noop
+    });
   });
 
   it('.makeArguments', function() {
@@ -98,6 +141,38 @@ describe('hook utilities', function() {
       { some: 'thing' },
       _.noop
     ]);
+
+    args = utils.makeArguments({
+      id: 5,
+      collection: 'tasks',
+      params: { some: 'thing' },
+      method: 'findInCollection',
+      callback: _.noop
+    });
+
+    assert.deepEqual(args, [5, 'tasks', { some: 'thing' }, _.noop]);
+
+    args = utils.makeArguments({
+      id: 6,
+      collection: 'tasks',
+      data: { my: 'data' },
+      params: { some: 'thing' },
+      method: 'addToCollection',
+      callback: _.noop
+    });
+
+    assert.deepEqual(args, [6, 'tasks', { my: 'data' }, { some: 'thing' }, _.noop]);
+
+    args = utils.makeArguments({
+      id: 7,
+      collection: 'tasks',
+      documentId: 123,
+      params: { some: 'thing' },
+      method: 'removeFromCollection',
+      callback: _.noop
+    });
+
+    assert.deepEqual(args, [7, 'tasks', 123, { some: 'thing' }, _.noop]);
   });
 
   it('.convertHookData', function() {
