@@ -141,6 +141,38 @@ describe('hook utilities', function() {
       { some: 'thing' },
       _.noop
     ]);
+
+    args = utils.makeArguments({
+      id: 5,
+      collection: 'tasks',
+      params: { some: 'thing' },
+      method: 'findInCollection',
+      callback: _.noop
+    });
+
+    assert.deepEqual(args, [5, 'tasks', { some: 'thing' }, _.noop]);
+
+    args = utils.makeArguments({
+      id: 6,
+      collection: 'tasks',
+      data: { my: 'data' },
+      params: { some: 'thing' },
+      method: 'addToCollection',
+      callback: _.noop
+    });
+
+    assert.deepEqual(args, [6, 'tasks', { my: 'data' }, { some: 'thing' }, _.noop]);
+
+    args = utils.makeArguments({
+      id: 7,
+      collection: 'tasks',
+      documentId: 123,
+      params: { some: 'thing' },
+      method: 'removeFromCollection',
+      callback: _.noop
+    });
+
+    assert.deepEqual(args, [7, 'tasks', 123, { some: 'thing' }, _.noop]);
   });
 
   it('.convertHookData', function() {
