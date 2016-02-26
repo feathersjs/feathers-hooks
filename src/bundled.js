@@ -1,5 +1,26 @@
 const errors = require('feathers-errors').errors;
 
+export function lowerCase(... fields) {
+  const lowerCaseFields = data => {
+    for(let field of fields) {
+      data[field] = data[field].toLowerCase();
+    }
+  };
+  
+  return function(hook) {
+    let result = hook.type === 'before' ? hook.data : hook.result;
+    
+    if(result) {
+      if(hook.method === 'find' || Array.isArray(result)) {
+        // data.data if the find method is paginated
+        (result.data || result).forEach(lowerCaseFields);
+      } else {
+        lowerCaseFields(result);
+      }
+    }
+  };
+}
+
 export function remove(... fields) {
   const removeFields = data => {
     for(let field of fields) {
