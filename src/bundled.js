@@ -100,7 +100,7 @@ export function pluckQuery(... fields) {
 }
 
 function containsField(obj, find) {
-    var args = find.split(".")
+    var args = find.split('.');
 
   for (var i = 0; i < args.length; i++) {
     if (!obj || !obj.hasOwnProperty(args[i])) {
@@ -112,13 +112,13 @@ function containsField(obj, find) {
 }
 
 function removeField(obj, find) {
-    var args = find.split(".")
+    var args = find.split('.');
 
   for (var i = 0; i < args.length; i++) {
     if (!obj || !obj.hasOwnProperty(args[i])) {
       return false;
     }
-    if(i == (args.length - 1)) {
+    if(i === (args.length - 1)) {
         obj[args[i]] = undefined;
         delete obj[args[i]];
         return true;
@@ -131,7 +131,7 @@ export function remove(... fields) {
   const removeFields = data => {
     for(let field of fields) {
       if(containsField(data, field)) {
-          removeField(data, field)
+          removeField(data, field);
       }
     }
   };
