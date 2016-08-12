@@ -99,39 +99,46 @@ export function pluckQuery(... fields) {
   };
 }
 
-function containsField(obj, find) {
-    var args = find.split('.');
+function findFieldOwner(obj, field) {
+  const nestedFields = field.split('.');
 
-  for (var i = 0; i < args.length; i++) {
-    if (!obj || !obj.hasOwnProperty(args[i])) {
-      return false;
+  for (let i = 0; obj && i < nestedFields.length; i++) {
+    const fieldName = nestedFields[i];
+    // Search prototype chain for direct property owner
+    // obj will be null if it cannot find owner
+    while (obj && !obj.hasOwnProperty(fieldName)) {
+      obj = Object.getPrototypeOf(obj);
     }
-    obj = obj[args[i]];
+    // Return the owner object of the last nested field
+    if (i === nestedFields.length - 1) {
+      return obj;
+    }
+    // Move to the next nested field
+    if (obj) {
+      obj = obj[fieldName];
+    }
   }
-  return true;
+  return null;
 }
 
-function removeField(obj, find) {
-    var args = find.split('.');
-
-  for (var i = 0; i < args.length; i++) {
-    if (!obj || !obj.hasOwnProperty(args[i])) {
-      return false;
-    }
-    if(i === (args.length - 1)) {
-        obj[args[i]] = undefined;
-        delete obj[args[i]];
-        return true;
-    }
-    obj = obj[args[i]];
+function removeField(obj, field) {
+  if (!obj || !obj.hasOwnProperty(field)) {
+    return false;
   }
+  obj[field] = undefined;
+  delete obj[field];
+  return true;
 }
 
 export function remove(... fields) {
   const removeFields = data => {
     for(let field of fields) {
-      if(containsField(data, field)) {
-          removeField(data, field);
+      const owner = findFieldOwner(data, field);
+
+      if (owner) {
+        const nestedFields = field.split('.');
+        const lastField = nestedFields[nestedFields.length - 1];
+        removeField(owner, lastField);
       }
     }
   };
