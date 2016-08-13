@@ -103,43 +103,35 @@ function findFieldOwner(obj, field) {
   const nestedFields = field.split('.');
 
   for (let i = 0; obj && i < nestedFields.length; i++) {
-    const fieldName = nestedFields[i];
     // Search prototype chain for direct property owner
     // obj will be null if it cannot find owner
-    while (obj && !obj.hasOwnProperty(fieldName)) {
+    while (obj && !obj.hasOwnProperty(nestedFields[i])) {
       obj = Object.getPrototypeOf(obj);
     }
-    // Return the owner object of the last nested field
-    if (i === nestedFields.length - 1) {
-      return obj;
-    }
-    // Move to the next nested field
-    if (obj) {
-      obj = obj[fieldName];
+
+    if (obj && i !== nestedFields.length - 1) {
+      //  Move to the next nested field
+      obj = obj[nestedFields[i]];
     }
   }
-  return null;
+  return obj;
 }
 
 function removeField(obj, field) {
-  if (!obj || !obj.hasOwnProperty(field)) {
-    return false;
+  const owner = findFieldOwner(obj, field);
+
+  if (owner) {
+    const lastField = field.split('.').pop();
+
+    owner[lastField] = undefined;
+    delete owner[lastField];
   }
-  obj[field] = undefined;
-  delete obj[field];
-  return true;
 }
 
 export function remove(... fields) {
   const removeFields = data => {
     for(let field of fields) {
-      const owner = findFieldOwner(data, field);
-
-      if (owner) {
-        const nestedFields = field.split('.');
-        const lastField = nestedFields[nestedFields.length - 1];
-        removeField(owner, lastField);
-      }
+      removeField(data, field);
     }
   };
 
