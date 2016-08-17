@@ -3,6 +3,8 @@ import feathers from 'feathers';
 import rest from 'feathers-rest';
 import memory from 'feathers-memory';
 import {errors} from 'feathers-errors';
+import mongoose from 'mongoose';
+import mongooseService from 'feathers-mongoose';
 import hooks from '../src/hooks';
 
 const addProvider = function(){
@@ -280,6 +282,48 @@ describe('Bundled feathers hooks', () => {
           service.store[1] = backup;
           done();
         }).catch(done);
+      });
+
+      it('removes fields from feathers-mongoose service', done => {
+        mongoose.connect('mongodb://mongodb:27017/feathes-hooks-dev');
+        mongoose.Promise = Promise;
+
+        const Schema = mongoose.Schema;
+        const DemoUserSchema = new Schema({
+          id: { type: Number, required: true },
+          name: { type: String, required: true },
+          email: { type: String, required: true },
+          password: { type: String, required: true },
+        });
+        const DemoUserModel = mongoose.model('DemoUser', DemoUserSchema);
+
+        app.use('/users', mongooseService({ Model: DemoUserModel, id: 'id' }));
+        const usersService = app.service('/users');
+
+        usersService.before({
+          get: addProvider(),
+          create: addProvider()
+        });
+        usersService.after({
+          get: [hooks.remove('email', 'password')]
+        });
+        usersService.create({id: 1, name: 'Marshall', email: 'admin@feathersjs.com', password: '1337'})
+        .then(() => {
+          return usersService.get(1);
+        })
+        .then(data => {
+          assert.equal(data.id, 1);
+          assert.equal(data.name, 'Marshall');
+          assert.equal(data.email, undefined);
+          assert.equal(data.password, undefined);
+
+          DemoUserModel.remove({})
+          .then(() => {
+            mongoose.connection.close();
+            done();
+          });
+        })
+        .catch(done);
       });
     });
 

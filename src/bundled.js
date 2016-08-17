@@ -121,10 +121,24 @@ function removeField(obj, field) {
   const owner = findFieldOwner(obj, field);
 
   if (owner) {
-    const lastField = field.split('.').pop();
+    const nestedFields = field.split('.');
+    const lastField = nestedFields[nestedFields.length - 1];
+    const propDescriptor = Object.getOwnPropertyDescriptor(owner, lastField);
 
-    owner[lastField] = undefined;
-    delete owner[lastField];
+    if (!propDescriptor || !propDescriptor.set) {
+      // if the property has no setter, delete it from its direct owner
+      owner[lastField] = undefined;
+      delete owner[lastField];
+    } else {
+      // Else, let the setter function handle it
+      for (let i = 0; obj && i < nestedFields.length - 1; i++) {
+        obj = obj[nestedFields[i]];
+      }
+      if (obj) {
+        obj[lastField] = undefined;
+        delete obj[lastField];
+      }
+    }
   }
 }
 
