@@ -262,68 +262,94 @@ describe('Bundled feathers hooks', () => {
         }).catch(done);
       });
 
-      it('removes inherited fields from inherited object', done => {
-        // Temporarily change memory data to be an inherited object
-        const backup = service.store[1];
-        const child = Object.create(service.store[1]);
-        service.store[1] = child;
+      describe('with mongoose', () => {
+        let DemoUserModel;
+        let usersService;
 
-        service.after({
-          get: hooks.remove('name')
-        });
+        before(done => {
+          mongoose.connect('mongodb://mongodb:27017/feathes-hooks-dev');
+          mongoose.Promise = Promise;
 
-        service.get(1).then(data => {
-          assert.equal(data.id, 1);
-          assert.equal(data.title, 'Old Man');
-          assert.equal(data.name, undefined);
-          // Remove the hook we just added
-          service.__afterHooks.get.pop();
-          // Restore memory data
-          service.store[1] = backup;
-          done();
-        }).catch(done);
-      });
-
-      it('removes fields from feathers-mongoose service', done => {
-        mongoose.connect('mongodb://mongodb:27017/feathes-hooks-dev');
-        mongoose.Promise = Promise;
-
-        const Schema = mongoose.Schema;
-        const DemoUserSchema = new Schema({
-          id: { type: Number, required: true },
-          name: { type: String, required: true },
-          email: { type: String, required: true },
-          password: { type: String, required: true },
-        });
-        const DemoUserModel = mongoose.model('DemoUser', DemoUserSchema);
-
-        app.use('/users', mongooseService({ Model: DemoUserModel, id: 'id' }));
-        const usersService = app.service('/users');
-
-        usersService.before({
-          get: addProvider(),
-          create: addProvider()
-        });
-        usersService.after({
-          get: [hooks.remove('email', 'password')]
-        });
-        usersService.create({id: 1, name: 'Marshall', email: 'admin@feathersjs.com', password: '1337'})
-        .then(() => {
-          return usersService.get(1);
-        })
-        .then(data => {
-          assert.equal(data.id, 1);
-          assert.equal(data.name, 'Marshall');
-          assert.equal(data.email, undefined);
-          assert.equal(data.password, undefined);
-
-          DemoUserModel.remove({})
-          .then(() => {
-            mongoose.connection.close();
-            done();
+          const Schema = mongoose.Schema;
+          const DemoUserSchema = new Schema({
+            id: { type: Number, required: true },
+            name: { type: String, required: true },
+            email: { type: String, required: true },
+            password: { type: String, required: true },
           });
-        })
-        .catch(done);
+          DemoUserModel = mongoose.model('DemoUser', DemoUserSchema);
+          app.use('/users', mongooseService({ Model: DemoUserModel, id: 'id' }));
+          usersService = app.service('/users');
+
+          usersService.before({
+            find: addProvider(),
+            get: addProvider(),
+            create: addProvider()
+          });
+          done();
+        });
+
+        beforeEach(done => {
+          DemoUserModel.insertMany([
+            {id: 1, name: 'Marshall', email: 'admin@feathersjs.com', password: '1337'},
+            {id: 2, name: 'David', email : 'admin@feathersjs.com', password: '1337' },
+            {id: 3, name: 'Eric', email : 'admin@feathersjs.com', password: '1337' }
+          ]).then(() => done());
+        });
+
+        afterEach(done => {
+          DemoUserModel.remove({}).then(() => done());
+        });
+
+        after(done => {
+          usersService.__beforeHooks.find.pop();
+          usersService.__beforeHooks.get.pop();
+          usersService.__beforeHooks.create.pop();
+          mongoose.connection.close();
+          done();
+        });
+
+        it('removes fields from single mongoose object', done => {
+          usersService.after({
+            get: [hooks.remove('email', 'password')]
+          });
+
+          usersService.get(1).then(data => {
+            assert.equal(data.id, 1);
+            assert.equal(data.name, 'Marshall');
+            assert.equal(data.email, undefined);
+            assert.equal(data.password, undefined);
+
+            usersService.__afterHooks.get.pop();
+            done();
+          }).catch(done);
+        });
+
+        it('removes fields from mongoose objects in array', done => {
+          usersService.after({
+            find: [hooks.remove('email', 'password')]
+          });
+          usersService.find().then(data => {
+            assert.equal(data[0].id, 1);
+            assert.equal(data[0].name, 'Marshall');
+            assert.equal(data[0].email, undefined);
+            assert.equal(data[0].password, undefined);
+
+            assert.equal(data[1].id, 2);
+            assert.equal(data[1].name, 'David');
+            assert.equal(data[1].email, undefined);
+            assert.equal(data[1].password, undefined);
+
+            assert.equal(data[2].id, 3);
+            assert.equal(data[2].name, 'Eric');
+            assert.equal(data[2].email, undefined);
+            assert.equal(data[2].password, undefined);
+
+            usersService.__afterHooks.find.pop();
+            done();
+          })
+          .catch(done);
+        });
       });
     });
 
