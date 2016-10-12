@@ -82,6 +82,7 @@ function hookMixin(service) {
         .then(hookObject => hookObject.result)
         .catch(error => {
           const errorHook = Object.assign({}, error.hook || hookObject, {
+            type: 'onError',
             error
           });
 

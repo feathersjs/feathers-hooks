@@ -18,6 +18,7 @@ describe('.onError hooks', () => {
     it('basic onError hook', done => {
       service.onError({
         get(hook) {
+          assert.equal(hook.type, 'onError');
           assert.equal(hook.id, 'test');
           assert.equal(hook.method, 'get');
           assert.equal(hook.app, app);
@@ -100,7 +101,9 @@ describe('.onError hooks', () => {
       service.before(function() {
         throw new Error(errorMessage);
       }).onError(function(hook) {
-        assert.equal(hook.type, 'before', 'Original hook still set');
+        assert.equal(hook.error.hook.type, 'before',
+          'Original hook still set'
+        );
         assert.equal(hook.id, 'dishes');
         assert.equal(hook.error.message, errorMessage);
         done();
@@ -113,7 +116,9 @@ describe('.onError hooks', () => {
       service.after(function() {
         throw new Error(errorMessage);
       }).onError(function(hook) {
-        assert.equal(hook.type, 'after', 'Original hook still set');
+        assert.equal(hook.error.hook.type, 'after',
+          'Original hook still set'
+        );
         assert.equal(hook.id, 'dishes');
         assert.deepEqual(hook.result, {
           id: 'dishes',
