@@ -78,6 +78,36 @@ describe('.onError hooks', () => {
         assert.equal(error.message, errorMessage);
       });
     });
+
+    it('can chain multiple hooks', () => {
+      service.onError({
+        get: [
+          function(hook) {
+            hook.error = new Error(errorMessage);
+            hook.error.first = true;
+          },
+
+          function(hook) {
+            hook.error.second = true;
+
+            return Promise.resolve(hook);
+          },
+
+          function(hook, next) {
+            hook.error.third = true;
+
+            next();
+          }
+        ]
+      });
+
+      return service.get('test').catch(error => {
+        assert.equal(error.message, errorMessage);
+        assert.ok(error.first);
+        assert.ok(error.second);
+        assert.ok(error.third);
+      });
+    });
   });
 
   describe('error in hooks', () => {
