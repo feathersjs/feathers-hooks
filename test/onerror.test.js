@@ -160,5 +160,20 @@ describe('.onError hooks', () => {
 
       service.get('dishes').then(done);
     });
+
+    it('uses the current hook object if thrown in a hook and sets hook.original', done => {
+      service.after(function(hook) {
+        hook.modified = true;
+
+        throw new Error(errorMessage);
+      }).onError(function(hook) {
+        assert.ok(hook.modified);
+        assert.equal(hook.original.type, 'after');
+
+        done();
+      });
+
+      service.get('laundry').then(done);
+    });
   });
 });
