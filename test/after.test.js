@@ -60,16 +60,13 @@ describe('.after hooks', () => {
           ran: true
         });
         service.find({}, error => {
-          if (error) {
-            done(error);
-          }
           assert.equal(error.message, 'You can not see this');
           done();
         });
       });
     });
 
-    it('.after hooks do not need to return anything', done => {
+    it('.after hooks do not need to return anything', () => {
       const app = feathers().configure(hooks()).use('/dummy', {
         get (id) {
           return Promise.resolve({
@@ -101,9 +98,6 @@ describe('.after hooks', () => {
         });
 
         return service.find().catch(error => {
-          if (error) {
-            done(error);
-          }
           assert.equal(error.message, 'You can not see this');
         });
       });
