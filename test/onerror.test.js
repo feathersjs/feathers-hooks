@@ -7,7 +7,7 @@ describe('.onError hooks', () => {
   describe('on direct service method errors', () => {
     const errorMessage = 'Something else went wrong';
     const app = feathers().configure(hooks()).use('/dummy', {
-      get() {
+      get () {
         return Promise.reject(new Error('Something went wrong'));
       }
     });
@@ -17,7 +17,7 @@ describe('.onError hooks', () => {
 
     it('basic onError hook', done => {
       service.onError({
-        get(hook) {
+        get (hook) {
           assert.equal(hook.type, 'onError');
           assert.equal(hook.id, 'test');
           assert.equal(hook.method, 'get');
@@ -33,7 +33,7 @@ describe('.onError hooks', () => {
 
     it('can change the error', () => {
       service.onError({
-        get(hook) {
+        get (hook) {
           hook.error = new Error(errorMessage);
         }
       });
@@ -45,7 +45,7 @@ describe('.onError hooks', () => {
 
     it('throwing an error', () => {
       service.onError({
-        get() {
+        get () {
           throw new Error(errorMessage);
         }
       });
@@ -57,7 +57,7 @@ describe('.onError hooks', () => {
 
     it('rejecting a promise', () => {
       service.onError({
-        get() {
+        get () {
           return Promise.reject(new Error(errorMessage));
         }
       });
@@ -69,7 +69,7 @@ describe('.onError hooks', () => {
 
     it('calling `next` with error', () => {
       service.onError({
-        get(hook, next) {
+        get (hook, next) {
           next(new Error(errorMessage));
         }
       });
@@ -82,18 +82,18 @@ describe('.onError hooks', () => {
     it('can chain multiple hooks', () => {
       service.onError({
         get: [
-          function(hook) {
+          function (hook) {
             hook.error = new Error(errorMessage);
             hook.error.first = true;
           },
 
-          function(hook) {
+          function (hook) {
             hook.error.second = true;
 
             return Promise.resolve(hook);
           },
 
-          function(hook, next) {
+          function (hook, next) {
             hook.error.third = true;
 
             next();
@@ -117,7 +117,7 @@ describe('.onError hooks', () => {
 
     beforeEach(() => {
       app = feathers().configure(hooks()).use('/dummy', {
-        get(id) {
+        get (id) {
           return Promise.resolve({
             id, text: `You have to do ${id}`
           });
@@ -128,9 +128,9 @@ describe('.onError hooks', () => {
     });
 
     it('error in before hook', done => {
-      service.before(function() {
+      service.before(function () {
         throw new Error(errorMessage);
-      }).onError(function(hook) {
+      }).onError(function (hook) {
         assert.equal(hook.error.hook.type, 'before',
           'Original hook still set'
         );
@@ -143,9 +143,9 @@ describe('.onError hooks', () => {
     });
 
     it('error in after hook', done => {
-      service.after(function() {
+      service.after(function () {
         throw new Error(errorMessage);
-      }).onError(function(hook) {
+      }).onError(function (hook) {
         assert.equal(hook.error.hook.type, 'after',
           'Original hook still set'
         );
@@ -162,11 +162,11 @@ describe('.onError hooks', () => {
     });
 
     it('uses the current hook object if thrown in a hook and sets hook.original', done => {
-      service.after(function(hook) {
+      service.after(function (hook) {
         hook.modified = true;
 
         throw new Error(errorMessage);
-      }).onError(function(hook) {
+      }).onError(function (hook) {
         assert.ok(hook.modified);
         assert.equal(hook.original.type, 'after');
 
