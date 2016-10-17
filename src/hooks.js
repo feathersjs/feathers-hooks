@@ -3,13 +3,13 @@ import { hooks as utils } from 'feathers-commons';
 import * as hooks from './bundled';
 import { addHookMethod, processHooks } from './commons';
 
-function isPromise(result) {
+function isPromise (result) {
   return typeof result !== 'undefined' &&
     typeof result.then === 'function';
 }
 
-function hookMixin(service) {
-  if(typeof service.mixin !== 'function') {
+function hookMixin (service) {
+  if (typeof service.mixin !== 'function') {
     return;
   }
 
@@ -31,11 +31,11 @@ function hookMixin(service) {
   addHookMethod(service, 'onError', methods);
 
   methods.forEach(method => {
-    if(typeof service[method] !== 'function') {
+    if (typeof service[method] !== 'function') {
       return;
     }
 
-    mixin[method] = function() {
+    mixin[method] = function () {
       // A reference to the original method
       const _super = this._super.bind(this);
       // Create the hook object that gets passed through
@@ -47,7 +47,7 @@ function hookMixin(service) {
       return processHooks.call(this, this.__hooks.before[method], hookObject)
         // Use the hook object to call the original method
         .then(hookObject => {
-          if(typeof hookObject.result !== 'undefined') {
+          if (typeof hookObject.result !== 'undefined') {
             return Promise.resolve(hookObject);
           }
 
@@ -55,8 +55,8 @@ function hookMixin(service) {
             const args = utils.makeArguments(hookObject);
             // The method may not be normalized yet so we have to handle both
             // ways, either by callback or by Promise
-            const callback = function(error, result) {
-              if(error) {
+            const callback = function (error, result) {
+              if (error) {
                 reject(error);
               } else {
                 hookObject.result = result;
@@ -67,9 +67,9 @@ function hookMixin(service) {
             // We replace the callback with resolving the promise
             args.splice(args.length - 1, 1, callback);
 
-            const result = _super(... args);
+            const result = _super(...args);
 
-            if(isPromise(result)) {
+            if (isPromise(result)) {
               result.then(data => callback(null, data), callback);
             }
           });
@@ -97,23 +97,23 @@ function hookMixin(service) {
   service.mixin(mixin);
 
   // Before hooks that were registered in the service
-  if(old.before) {
+  if (old.before) {
     service.before(old.before);
   }
 
   // After hooks that were registered in the service
-  if(old.after) {
+  if (old.after) {
     service.after(old.after);
   }
 
   // onError
-  if(old.onError) {
+  if (old.onError) {
     service.onError(old.onError);
   }
 }
 
-function configure() {
-  return function() {
+function configure () {
+  return function () {
     this.mixins.unshift(hookMixin);
   };
 }
