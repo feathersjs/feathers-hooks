@@ -40,7 +40,9 @@
     "test": "npm run compile && npm run lint && npm run mocha"
   },
   "semistandard": {
-    "env": ["mocha"]
+    "env": [
+      "mocha"
+    ]
   },
   "dependencies": {
     "feathers-commons": "^0.7.0",
@@ -56,7 +58,6 @@
     "feathers-memory": "^0.8.0",
     "feathers-mongoose": "^3.5.1",
     "feathers-rest": "^1.2.2",
-    "jshint": "^2.8.0",
     "mocha": "^3.0.0",
     "mongoose": "^4.5.9",
     "rimraf": "^2.5.2",
