@@ -16,6 +16,10 @@ describe('app.hooks', () => {
           }
 
           return Promise.resolve({ id, params });
+        },
+
+        create (data, params) {
+          return Promise.resolve({ data, params });
         }
       });
   });
@@ -26,16 +30,26 @@ describe('app.hooks', () => {
 
   describe('app.hooks({ before })', () => {
     it('basic app before hook', () => {
+      const service = app.service('todos');
+
       app.hooks({
         before (hook) {
           hook.params.ran = true;
         }
       });
 
-      return app.service('todos').get('test').then(result => {
+      return service.get('test').then(result => {
         assert.deepEqual(result, {
           id: 'test',
           params: { ran: true }
+        });
+
+        const data = { test: 'hi' };
+
+        return service.create(data).then(result => {
+          assert.deepEqual(result, {
+            data, params: { ran: true }
+          });
         });
       });
     });

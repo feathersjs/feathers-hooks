@@ -86,7 +86,7 @@ export function baseMixin (methods, ...objs) {
         });
 
         methods.forEach(method => {
-          if (typeof this[method] !== 'function') {
+          if (!(hooks[method] || hooks.all)) {
             return;
           }
 
