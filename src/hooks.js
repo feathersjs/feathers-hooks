@@ -2,7 +2,7 @@ import Proto from 'uberproto';
 import { hooks as utils } from 'feathers-commons';
 import {
   lowerCase, removeQuery, pluckQuery,
-  removeField, remove, pluck, disable, populate
+  removeField, remove, pluck, disable, legacyPopulate
 } from 'feathers-hooks-common/lib/bundled';
 
 import { addHookTypes, processHooks, baseMixin, getHooks } from './commons';
@@ -143,7 +143,7 @@ configure.lowerCase = lowerCase;
 configure.remove = remove;
 configure.pluck = pluck;
 configure.disable = disable;
-configure.populate = populate;
+configure.populate = legacyPopulate;
 configure.removeField = removeField;
 
 export default configure;
