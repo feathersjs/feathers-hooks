@@ -2,8 +2,8 @@
 
 export as namespace configure;
 
-declare function configure(): () =>void;
-declare namespace configure{
+export default function configure(): () =>void;
+//declare namespace configure{
 
   //TODO: make feathers-hooks-common definition
   /**
@@ -16,4 +16,4 @@ declare namespace configure{
    * export populate
    * export removeField
    */
-}
+//}
