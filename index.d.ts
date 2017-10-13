@@ -5,7 +5,7 @@ declare module 'feathers' {
     hooks(hooks: hooks.HooksObject): Application;
   }
 
-  interface Service<T extends any> {
+  interface Service<T> {
     before(hooks: hooks.HookMap): Application;
     after(hooks: hooks.HookMap): Application;
     hooks(hooks: hooks.HooksObject): Application;
