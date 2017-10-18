@@ -1,6 +1,17 @@
-import * as feathers from "feathers-typescript-fix";
+import * as feathers from "feathers";
 
 declare function hooks(): () => void;
+
+declare module "feathers" {
+    interface Service<T> {
+        before(hooks: hooks.HookMap): Application;
+        after(hooks: hooks.HookMap): Application;
+        hooks(hooks: hooks.HooksObject): Application;
+    }
+    interface Application {
+        hooks(hooks: hooks.HooksObject): Application;
+    }
+}
 
 declare namespace hooks {
     interface Hook {
