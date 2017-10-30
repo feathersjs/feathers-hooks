@@ -130,7 +130,7 @@ function configure () {
     const app = this;
 
     if (app.version && app.version >= '3.0.0') {
-      throw new Error(`You are using Feather v${app.version} which already includes feathers-hooks. This module is no longer necessary for this version.`);
+      throw new Error(`You are using Feathers v${app.version} which already includes feathers-hooks. You can remove this module from your application.`);
     }
 
     addHookTypes(app);
