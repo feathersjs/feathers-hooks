@@ -1,9 +1,19 @@
 import assert from 'assert';
 import feathers from 'feathers';
+import feathers3 from '@feathersjs/feathers';
 
 import hooks from '../src/hooks';
 
 describe('feathers-hooks', () => {
+  it('throws an error when using Feathers v3 or later', () => {
+    try {
+      feathers3().configure(hooks());
+      assert.ok(false, 'Should never get here');
+    } catch (e) {
+      assert.equal(e.message, `You are using Feather v${feathers3.version} which already includes feathers-hooks. This module is no longer necessary for this version.`);
+    }
+  });
+
   it('always turns service call into a promise (#28)', () => {
     const app = feathers().configure(hooks()).use('/dummy', {
       get (id, params, callback) {
