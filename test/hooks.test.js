@@ -10,7 +10,7 @@ describe('feathers-hooks', () => {
       feathers3().configure(hooks());
       assert.ok(false, 'Should never get here');
     } catch (e) {
-      assert.equal(e.message, `You are using Feather v${feathers3.version} which already includes feathers-hooks. This module is no longer necessary for this version.`);
+      assert.equal(e.message, `You are using Feathers v${feathers3.version} which already includes feathers-hooks. You can remove this module from your application.`);
     }
   });
 
