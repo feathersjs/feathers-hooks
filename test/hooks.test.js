@@ -209,7 +209,7 @@ describe('feathers-hooks', () => {
     app.use('/dummy2', app.service('dummy'));
   });
 
-  if(process.version > '6.0.0') {
+  if(process.version > 'v6.0.0') {
     it('throws an error when using Feathers v3 or later', () => {
       const feathers3 = require('@feathersjs/feathers');
 
